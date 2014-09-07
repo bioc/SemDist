@@ -2,15 +2,15 @@
 %\VignetteIndexEntry{Using SemDist}
 %\newcommand{\tab}[1]{\hspace{.2\textwidth}\rlap{#1}}
 \usepackage{amsmath}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 \usepackage{natbib}
 \usepackage{url}
 
 \title{An Introduction to SemDist}
-
+\usepackage{Sweave}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+\input{introduction-concordance}
 
 \begin{center}
 
@@ -152,13 +152,12 @@ This package allows for straightforward calculation of these metrics. It provide
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Install the SemDist package on your version of R with the biocLite and library functions. The package requires R version 2.10.0 or greater and Bioconductor version 2.14 or greater. The annotate, AnnotationDbi, and GO.db packages are also required for functionality.
-<<eval=FALSE>>=
-biocLite("SemDist")
-library(SemDist)
-@
-<<echo=FALSE, eval=TRUE>>=
-library(SemDist)
-@
+\begin{Schunk}
+\begin{Sinput}
+> biocLite("SemDist")
+> library(SemDist)
+\end{Sinput}
+\end{Schunk}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,46 +165,57 @@ library(SemDist)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The simplest way to use SemDist is to use one of the provided data sets containing information accretion values. Information accretion values were pre-calculated for each organism using Bioconductor AnnotationData Packages \citep{Anno}. These pre-calculated values can be found in the \path{data/} directory of the SemDist package. (Note that in addition, all other test files used in the following examples can be accessed by the user in the \path{extdata/} directory). Calculations for human protein annotations were performed using only annotations supported by experimental evidence codes (all other species data were calculated with all available annotations).
+The simplest way to use SemDist is to use one of the provided data sets containing information accretion values. Information accretion values were pre-calculated for each organism using Bioconductor AnnotationData Packages \citep{Anno}. These pre-calculated values can be found in the \path{data/} directory of the SemDist package. (Note that in addition, all other test files used in the following examples can be accessed by the user in the \path{extdata/} directory). Calculations were performed using only annotations supported by experimental evidence codes (EXP, IDA, IPI, IMP, IGI, IEP, TAS, IC). 
 
 Information accretion values can be recalculated by the user or calculated using different evidence codes using the \texttt{computeIA} function.
 
-<<tidy=FALSE, eval=TRUE>>=
-# Examine built-in IA data
-data("Info_Accretion_mouse_CC", package="SemDist")
-head(IAccr)
-@
-<<eval=FALSE, tidy=FALSE>>=
-# Calculate IA, specify evidence codes
-# Requires downloading annotation data package
-biocLite("org.Hs.eg.db")
-IAccr <- computeIA("MF", "human", evcodes=c("EXP", "IC"))
-@
+\begin{Schunk}
+\begin{Sinput}
+> # Examine built-in IA data
+> data("Info_Accretion_mouse_CC", package="SemDist")
+> head(IAccr)
+\end{Sinput}
+\begin{Soutput}
+GO:0000015 GO:0005886 GO:0000109 GO:0000110 GO:0000111 GO:0000112 
+4.56985561 0.00849539 6.11173759 2.70043972 3.70043972 3.70043972 
+\end{Soutput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> # Calculate IA, specify evidence codes
+> # Requires downloading annotation data package
+> biocLite("org.Hs.eg.db")
+> IAccr <- computeIA("MF", "human", evcodes=c("EXP", "IC"))
+\end{Sinput}
+\end{Schunk}
 
 Users can define their own ontology and annotations.  The \texttt{computeIA} function can then calculate information accretion for each term, or entity, in the custom ontology according to \Cref{eq:IA}.
 
 Ontologies should be specified using a tab-delimited file indicating every parent-child relationship in the ontology; with the first column designating the parent name and the second column identifying the child name. The annotations file should have the same format as the true annotations file used above where annotations represent terms drawn from the specified ontology.  
 
-<<tidy=FALSE, eval=TRUE>>=
-
-# Calculate IA, specify ontology and annotations
-ontfile <- system.file("extdata", "mfo_ontology.txt",
-                        package="SemDist")
-annotations <- system.file("extdata", "MFO_LABELS_TEST.txt", 
-                            package="SemDist")
-IAccr <- computeIA("my", "values", specify.ont=TRUE, 
-                myont=ontfile, specify.annotations=TRUE, 
-                annotfile=annotations)
-@
+\begin{Schunk}
+\begin{Sinput}
+> # Calculate IA, specify ontology and annotations
+> ontfile <- system.file("extdata", "mfo_ontology.txt",
++                         package="SemDist")
+> annotations <- system.file("extdata", "MFO_LABELS_TEST.txt", 
++                             package="SemDist")
+> IAccr <- computeIA("my", "values", specify.ont=TRUE, 
++                 myont=ontfile, specify.annotations=TRUE, 
++                 annotfile=annotations)
+\end{Sinput}
+\end{Schunk}
 
 
 It is also possible to specify your own ontology and use Bioconductor AnnotationData annotations, although it should be pointed out that using a version of the ontology other than that associated with the AnnotationData annotations may result in terms not being found. 
 
-<<tidy=FALSE, eval=FALSE>>=
-# Calculate IA, specify ontology
-IAccr <- computeIA("MF", "human", specify.ont=TRUE,
-         myont=ontfile, specify.annotations=FALSE)
-@
+\begin{Schunk}
+\begin{Sinput}
+> # Calculate IA, specify ontology
+> IAccr <- computeIA("MF", "human", specify.ont=TRUE,
++          myont=ontfile, specify.annotations=FALSE)
+\end{Sinput}
+\end{Schunk}
 
 
 When the ontology is specified but annotations are not, annotations are taken from the specified organism. (Note that this may require the installation of databases not provided in the package). The recommended method is to specify both, as is the case in the second example. 
@@ -226,15 +236,26 @@ Before any of the evaluation metrics in this package can be utilized, two user-p
 
 These files should take the form of tab-delineated text, with the first column being sequence identifiers, the second column being GO identifiers (of the form "GO:0005615"), and the third column (in the case of the prediction file) being a valid number in the interval $[0,1]$.
 
-<<eval=TRUE, tidy=FALSE>>=
-# Sample true, prediction files included with SemDist:
-truefile <- system.file("extdata", "MFO_LABELS_TEST.txt", 
-                        package="SemDist")
-predfile <- system.file("extdata", "MFO_PREDS_TEST.txt", 
-                        package="SemDist")
-predictions <- read.table(predfile, colClasses = "character")
-head(predictions)
-@
+\begin{Schunk}
+\begin{Sinput}
+> # Sample true, prediction files included with SemDist:
+> truefile <- system.file("extdata", "MFO_LABELS_TEST.txt", 
++                         package="SemDist")
+> predfile <- system.file("extdata", "MFO_PREDS_TEST.txt", 
++                         package="SemDist")
+> predictions <- read.table(predfile, colClasses = "character")
+> head(predictions)
+\end{Sinput}
+\begin{Soutput}
+          V1         V2    V3
+1 INO4_YEAST GO:0003674 0.464
+2 INO4_YEAST GO:0030528 0.464
+3 INO4_YEAST GO:0016564 0.441
+4 INO4_YEAST GO:0016563 0.464
+5 INO4_YEAST GO:0030234 0.400
+6 INO4_YEAST GO:0060589 0.400
+\end{Soutput}
+\end{Schunk}
 
 
 Given these basic data sets, remaining uncertainty and misinformation can be calculated according to \Cref{eq:ruSIMP} and \Cref{eq:miSIMP} using the \texttt{findRUMI} function in addition to the package's built in data sets. 
@@ -242,11 +263,13 @@ Given these basic data sets, remaining uncertainty and misinformation can be cal
 
 As a simple example we show how one can calculate remaining uncertainty and misinformation for a single threshold ($\tau =0.75$),
 
-<<eval=TRUE, tidy=FALSE>>=
-rumiTable <- findRUMI("MF", "human", 0.75, truefile, predfile)
-avgRU <- mean(rumiTable$RU)
-avgMI <- mean(rumiTable$MI)
-@
+\begin{Schunk}
+\begin{Sinput}
+> rumiTable <- findRUMI("MF", "human", 0.75, truefile, predfile)
+> avgRU <- mean(rumiTable$RU)
+> avgMI <- mean(rumiTable$MI)
+\end{Sinput}
+\end{Schunk}
 
 where information accretion data from the molecular function portion of the ontology terms annotating human sequences were used (denoted \texttt{"MF"} and \texttt{"human"} in the function call). 
 
@@ -255,16 +278,17 @@ The returned \texttt{rumiTable} variable should contains a data frame with the r
 
 As mentioned in the above section, user-created IA variables from \texttt{computeIA} output can be used to specify the information accretion values used in the calculation of \texttt{RU} and \texttt{MI} via the \texttt{IAccr} argument:
 
-<<eval=TRUE, tidy=FALSE>>=
-# A sample IA file that comes with the SemDist package.
-myIA <- system.file("extdata", "myIA.rda", package="SemDist")
-load(myIA)
-
-# "MF" and "human" are present only for naming purposes
-# since IA is taken from myIA.rda
-rumiTable <- findRUMI("MF", "human", 0.75, truefile, predfile, 
-                        IAccr = IA)
-@
+\begin{Schunk}
+\begin{Sinput}
+> # A sample IA file that comes with the SemDist package.
+> myIA <- system.file("extdata", "myIA.rda", package="SemDist")
+> load(myIA)
+> # "MF" and "human" are present only for naming purposes
+> # since IA is taken from myIA.rda
+> rumiTable <- findRUMI("MF", "human", 0.75, truefile, predfile, 
++                         IAccr = IA)
+\end{Sinput}
+\end{Schunk}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -275,11 +299,14 @@ rumiTable <- findRUMI("MF", "human", 0.75, truefile, predfile,
 
 The average values of remaining uncertainty and misinformation across multiple thresholds in the interval $[0,1]$ as specified by \Cref{eq:average_ru,eq:average_mi} can be calculated. Using the same true/prediction files and specifying a set increment of $0.05$ which $\tau$ is increased
 
-<<eval=TRUE, fig=TRUE, results=hide>>=
-avgRUMIvals <- RUMIcurve("MF", "human", 0.05, truefile, predfile)
-firstset <- avgRUMIvals[[1]]
-plot(firstset$RU, firstset$MI)
-@
+\begin{Schunk}
+\begin{Sinput}
+> avgRUMIvals <- RUMIcurve("MF", "human", 0.05, truefile, predfile)
+> firstset <- avgRUMIvals[[1]]
+> plot(firstset$RU, firstset$MI)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{introduction-010}
 
 
 The \texttt{RUMIcurve} function will accept multiple prediction files (as a character vector) as input, and actually returns a list containing the values calculated for each set of predictions; hence the need for indexing into the first element to get the curve data. The \texttt{firstset} variable contains a data frame with the average RU and MI values for each threshold the function calculated for. In this case, the increment was set to 0.05.
@@ -288,12 +315,17 @@ The plot visualizes how remaining uncertainty and misinformation change as the d
 
 Semantic distance can be obtained in a straightforward manner from the points in the RU-MI curve according to \Cref{eq:semantic_distance}:
 
-<<eval=TRUE, tidy=FALSE>>=
-# Minimize distance from origin over all points in RUMI curve:
-
-semdist <- min(sqrt(firstset$MI^2 + firstset$RU^2))
-semdist
-@
+\begin{Schunk}
+\begin{Sinput}
+> # Minimize distance from origin over all points in RUMI curve:
+> 
+> semdist <- min(sqrt(firstset$MI^2 + firstset$RU^2))
+> semdist
+\end{Sinput}
+\begin{Soutput}
+[1] 9.12004
+\end{Soutput}
+\end{Schunk}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -304,12 +336,15 @@ semdist
 
 Related metrics can also be output by the \texttt{RUMIcurve} function. The data frames that are returned also contain an \texttt{"SS"} column which contains the semantic similarity for a given threshold calculated as specified by \Cref{eq:semsem}. Setting the boolean parameter \texttt{add.prec.rec} to TRUE will cause precision, recall, and specificity values to be included as well. Doing the same for \texttt{add.weighted} will output weighted remaining uncertainty, weighted misinformation, and weighted semantic similarity. The weighted metrics assign a weight to each RU or MI value for all the sequences based on how much of the total information accretion that sequence accounts. See \Cref{eq:precision}, \Cref{eq:recall}, and \Cref{eq:weighted_specificity} for the formal definitions of these calculations.
 
-<<tidy=FALSE, eval=TRUE, results=hide, fig=TRUE>>=
-rumiout <- RUMIcurve("MF", "human", 0.05, truefile, predfile,
-                     add.prec.rec=TRUE, add.weighted=TRUE)
-firstset <- rumiout[[1]]
-plot(firstset$WRU, firstset$WMI)
-@
+\begin{Schunk}
+\begin{Sinput}
+> rumiout <- RUMIcurve("MF", "human", 0.05, truefile, predfile,
++                      add.prec.rec=TRUE, add.weighted=TRUE)
+> firstset <- rumiout[[1]]
+> plot(firstset$WRU, firstset$WMI)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{introduction-012}
 
 \section{Acknowledgments}
 The code in the SemDist package was based in part on the source code of the GOSemSim package \citep{Yu2010}.
