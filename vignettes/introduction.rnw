@@ -153,7 +153,7 @@ This package allows for straightforward calculation of these metrics. It provide
 
 Install the SemDist package on your version of R with the biocLite and library functions. The package requires R version 2.10.0 or greater and Bioconductor version 2.14 or greater. The annotate, AnnotationDbi, and GO.db packages are also required for functionality.
 <<eval=FALSE>>=
-biocLite("SemDist")
+BiocManager::install("SemDist")
 library(SemDist)
 @
 <<echo=FALSE, eval=TRUE>>=
@@ -178,7 +178,7 @@ head(IAccr)
 <<eval=FALSE, tidy=FALSE>>=
 # Calculate IA, specify evidence codes
 # Requires downloading annotation data package
-biocLite("org.Hs.eg.db")
+BiocManager::install("org.Hs.eg.db")
 IAccr <- computeIA("MF", "human", evcodes=c("EXP", "IC"))
 @
 
