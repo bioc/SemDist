@@ -151,7 +151,7 @@ This package allows for straightforward calculation of these metrics. It provide
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Install the SemDist package on your version of R with the biocLite and library functions. The package requires R version 2.10.0 or greater and Bioconductor version 2.14 or greater. The annotate, AnnotationDbi, and GO.db packages are also required for functionality.
+Install the SemDist package on your version of R with the BiocManager::install function. The package requires R version 2.10.0 or greater and Bioconductor version 2.14 or greater. The annotate, AnnotationDbi, and GO.db packages are also required for functionality.
 <<eval=FALSE>>=
 BiocManager::install("SemDist")
 library(SemDist)
